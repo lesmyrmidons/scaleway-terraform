@@ -1,0 +1,23 @@
+version: '3'
+
+env:
+#  TERRAFORM: '{{if eq OS "linux"}}docker run --rm -v {{.PWD}}/terraform:/data --workdir=/data --env-file credentials.rc -u $(id -u):$(id -g) hashicorp/terraform:1.0.3{{else}}terraform{{end}}'
+  TERRAFORM: docker run --rm -v {{.PWD}}/terraform:/data --workdir=/data --env-file credentials.rc -u $(id -u):$(id -g) hashicorp/terraform:1.0.3
+
+tasks:
+  command:
+    dir: "{{.PWD}}/terraform"
+    cmds:
+      - "{{.TERRAFORM}} {{.ARG}} {{.CLI_ARGS}}"
+
+  init:
+    desc: initialize terraform
+    deps:
+      - task: command
+        vars: {ARG: init}
+
+  valid:
+    desc: Validate config terraform
+    deps:
+      - task: command
+        vars: {ARG: plan}
